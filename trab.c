@@ -4,6 +4,8 @@
 #include <string.h>
 #include <time.h>
 
+int rodadaGlobal = 1;
+
 int randomInt(int min, int max) { // Definindo função random
     return min + rand() % (max - min + 1);
 }
@@ -50,7 +52,7 @@ bool timeVivo(Personagem equipe[]) {   //Testando se o o time está vivo
     return false;
 }
 
-int selecionaAtacante(Personagem equipe[]){
+int selecionaAtacante(Personagem equipe[]) {
     int idSelecionado = -1;
     float maiorRazao = -1;
     for (int i = 0; i < 5; i++) {
@@ -65,139 +67,184 @@ int selecionaAtacante(Personagem equipe[]){
     return idSelecionado;
 }
 
-int selecionaAlvo(){
+int selecionaAlvo() {
     int idSelecionado = randomInt(0,4);
     return idSelecionado;
 }
 
-bool verificarErroAtaque(){     //verifica chance 20% erro ataque
+bool verificarErroAtaque() {     //verifica chance 20% erro ataque
     int chance = randomInt(0,100);
     if (chance <= 20) return true;
     return false;
 }
 
-bool verificarFalhaDefesa(){     //verifica chance 20% falha defesa
+bool verificarFalhaDefesa() {     //verifica chance 20% falha defesa
     int chance = randomInt(0,100);
     if (chance <= 20) return true;
     return false;
 }
 
-void chanceHabilidadeAtacante(Personagem *atacante, int idxAtacante){
+void chanceHabilidadeAtacante(Personagem *atacante, int idxAtacante) {
     int chance = randomInt(0,100);
-    switch (idxAtacante)
-    {
-    case 0:     //guerreiro - somente ataque
-        if (chance <= 20) {
-            atacante->habilidade_ativa = 1;
-        }
-        break;
-    case 1:     //mago - somente ataque
-        if (chance > 20 && chance <=45) {
-            atacante->habilidade_ativa = 1;
-        }
-        break;
-    case 2:     //caçador - somente ataque
-        if (chance > 45 && chance <=60) {
-            atacante->habilidade_ativa = 1;
-        }
-        break;
-    case 3:     //paladino - somente defesa
-        atacante->habilidade_ativa = 0;
-        break;
-    case 4:     //barbaro - somente ataque
-        atacante->habilidade_ativa = 1;
-        break;
-    
 
-    default:
-        break;
-    }
-}
-
-void aplicarHabilidadeEspecialAtacante(Personagem *atacante, Personagem *defensor, int idxAtacante, int idxAlvo){
-    int dano =0;
     switch (idxAtacante) {
-    case 0:     //guerreiro - dano dobrado
-        dano = 2*(atacante->ataque  - defensor->defesa);
-        if (dano <0) dano =0;
-        defensor->vida -= dano;
-        if (defensor->vida < 0) defensor->vida =0;
-        break;
-
-    case 1:     //mago - ignora defesa
-        dano = atacante->ataque;
-        if (dano <0) dano =0;
-        defensor->vida -= dano;
-        if (defensor->vida < 0) defensor->vida =0;
-        break;
-
-    case 2:     //caçador - ataca duas vezes
-        dano = atacante->ataque  - defensor->defesa;
-        if (dano <0) dano =0;
-        defensor->vida -= dano;
-        dano = atacante->ataque  - defensor->defesa;
-        if (dano <0) dano =0;
-        defensor->vida -= dano;
-        if (defensor->vida < 0) defensor->vida =0;
-        break;
-
-    case 3:     // paladino - ataque normal + chance de regeneração
-        dano = atacante->ataque - defensor->defesa;
-        if (dano < 0) dano = 0;
-        defensor->vida -= dano;
-        if (defensor->vida < 0) defensor->vida = 0;
-
-        printf("%s atacou %s causando %d de dano. Vida restante do defensor: %d\n",
-            atacante->classe, defensor->classe, dano, defensor->vida);
-
-
-        if (defensor->vida > 0) { // Paladino sobrevive, então a habilidade é testada
-            int chance = randomInt(0, 100);
-            if (chance < 30) {
-                int vida_perdida = 100 - defensor->vida;
-                int vida_regenerada = vida_perdida * 20 / 100;
-                defensor->vida += vida_regenerada;
-                if (defensor->vida > 100)
-                    defensor->vida = 100;
-                printf("%s regenerou %d de vida! Vida atual: %d\n",
-                        defensor->classe, vida_regenerada, defensor->vida);
-            }
-        break;
-    }
-    case 4:     //barbaro - somente ataque
-        dano = atacante->ataque  - defensor->defesa;
-        if (dano <0) dano =0;
-        defensor->vida -= dano;
-        break;
-
-    default:
-        break;
+        case 0:     //guerreiro - somente ataque
+            if (chance <= 20) atacante->habilidade_ativa = 1;
+            break;
+        case 1:     //mago - somente ataque
+            if (chance > 20 && chance <=45) atacante->habilidade_ativa = 1;
+            break;
+        case 2:     //caçador - somente ataque
+            if (chance > 45 && chance <=60) atacante->habilidade_ativa = 1;
+            break;
+        case 3:     //paladino - somente defesa
+            atacante->habilidade_ativa = 0;
+            break;
+        case 4:     //barbaro - somente ataque
+            atacante->habilidade_ativa = 1;
+            break;
+        default:
+            break;
     }
 }
 
-void ataque(Personagem *atacante, Personagem *defensor, int idxAtacante, int idxAlvo){
+void aplicarHabilidadeEspecialAtacante(Personagem *atacante, Personagem *defensor, int idxAtacante, int idxAlvo) {
+    int dano = 0;
+
+    switch (idxAtacante) {
+        case 0:     //guerreiro - dano dobrado
+            dano = 2 * (atacante->ataque - defensor->defesa);
+            if (dano < 0) dano = 0;
+            defensor->vida -= dano;
+            
+            if (defensor->vida < 0) defensor->vida = 0;
+            break;
+
+        case 1:     //mago - ignora defesa
+            dano = atacante->ataque;
+            if (dano < 0) dano = 0;
+            defensor->vida -= dano;
+
+            if (defensor->vida < 0) defensor->vida = 0;
+            break;
+
+        case 2:     //caçador - ataca duas vezes
+            dano = atacante->ataque - defensor->defesa;
+            if (dano < 0) dano = 0;
+            defensor->vida -= dano;
+
+            dano = atacante->ataque  - defensor->defesa;
+            if (dano < 0) dano = 0;
+            defensor->vida -= dano;
+
+            if (defensor->vida < 0) defensor->vida = 0;
+            break;
+
+        case 3:     // paladino - ataque normal + chance de regeneração
+            dano = atacante->ataque - defensor->defesa;
+            if (dano < 0) dano = 0;
+            defensor->vida -= dano;
+            if (defensor->vida < 0) defensor->vida = 0;
+
+            if (defensor->vida > 0) { // Paladino sobrevive, então a habilidade é testada
+                int chance = randomInt(0, 100);
+                if (chance < 30) {
+                    int vida_perdida = 100 - defensor->vida;
+                    int vida_regenerada = vida_perdida * 20 / 100;
+                    defensor->vida += vida_regenerada;
+                    if (defensor->vida > 100) defensor->vida = 100;
+                    printf("%s regenerou %d de vida! Vida atual: %d\n",
+                            defensor->classe, vida_regenerada, defensor->vida);
+                }
+            break;
+            }
+
+        case 4:     //barbaro - somente ataque
+            dano = atacante->ataque  - defensor->defesa;
+            if (dano < 0) dano = 0;
+            defensor->vida -= dano;
+            if (defensor->vida < 0) defensor->vida = 0;
+            break;
+
+        default:
+            break;
+    }
+}
+
+void mostrarStatusEquipes(Personagem equipe1[], Personagem equipe2[]) {
+    printf("\n\n==========Estado atual==========");
+    printf("\nTime 1:");
+    for(int i = 0; i < 5; i++) {
+        printf("\n%s (%d/100)", equipe1[i].classe, equipe1[i].vida);
+    }
+    printf("\n\nTime 2:");
+    for(int i = 0; i < 5; i++) {
+        printf("\n%s (%d/100)", equipe2[i].classe, equipe2[i].vida);
+    }
+    printf("\n================================");
+}
+
+void ataque(Personagem *atacante, Personagem *defensor, int idxAtacante, int numTimeAtacante){
+    printf("\n\n>>> Rodada %d: ", rodadaGlobal); // Variável 'rodadaGlobal' definida no começo do arquivo
+
+    printf("\nTime %d - %s (%d/100) ataca %s do Time %d (%d/100)",
+            numTimeAtacante, atacante->classe, atacante->vida,
+            defensor->classe, (numTimeAtacante == 1) ? 2 : 1, defensor->vida);
+
     int chanceErroAtaque = verificarErroAtaque();
-    if (idxAtacante == 4) { // Bárbaro ignora falha no ataque
+    int chanceFalhaDefesa = verificarFalhaDefesa();
+
+    if (idxAtacante == 4) { // Bárbaro (idx=4) ignora falha no ataque
         chanceErroAtaque = 0; // força ataque sem erro
     }
+
     chanceHabilidadeAtacante(atacante, idxAtacante);        //testa se a habilidade especial vai ser ativada do atacante
 
-    if (atacante->habilidade_ativa && !chanceErroAtaque) {
-        aplicarHabilidadeEspecialAtacante(atacante, defensor, idxAtacante, idxAlvo);    //o ataque sera nessa funcao caso tenha habilidade especial
-        
-
-    } else if (!chanceErroAtaque){     // o ataque sera normalmente caso nao tenha habilidade especial
-        int dano = atacante->ataque  - defensor->defesa;
-        if (dano <0) dano =0;
-        defensor->vida -= dano;
-        if (defensor->vida < 0) defensor->vida =0;
-         printf("%s atacou %s causando %d de dano. Vida restante do defensor: %d\n",
-           atacante->classe, defensor->classe, dano, defensor->vida);
+    if (chanceErroAtaque) {
+        printf("\n→ Ataque errou! Nenhum dano aplicado.");
+        return;
     }
 
-    
+    if (atacante->habilidade_ativa && !chanceErroAtaque) {
+        printf("\n→ Ataque bem sucedido!");
+        
+        int vidaAntes = defensor->vida;
 
-    //aplicar a funcao de zerar habilidade especial no final do ataque
+        aplicarHabilidadeEspecialAtacante(atacante, defensor, idxAtacante, idxAtacante);    //o ataque sera nessa funcao caso tenha habilidade especial
+        printf("\n→ Dano aplicado: %d", vidaAntes - defensor->vida);
+        printf("\n→ Habilidade especial do %s ativada: ", atacante->classe);
+
+        switch (idxAtacante) {
+            case 0: printf("dano dobrado"); break;
+            case 1: printf("ignorar defesa"); break;
+            case 2: printf("ataque duplo"); break;
+            case 3: printf("regeneração"); break;
+            case 4: printf("ataque certeiro"); break;
+        }
+
+        printf("\n→ %s agora com [%d/100] de vida", defensor->classe, defensor->vida);
+
+    } else if (!chanceErroAtaque){     // o ataque sera normalmente caso nao tenha habilidade especial
+        printf("\nAtaque bem sucedido! ");
+
+        int vidaAntes = defensor->vida;
+
+        int dano;
+        if(chanceFalhaDefesa) { // Verifica falha defesa
+            dano = atacante->ataque;
+            printf("%s falhou na defesa! ", defensor->classe);
+        } else {
+            dano = atacante->ataque - defensor->defesa;
+        }
+        if (dano < 0) dano = 0;
+        defensor->vida -= dano;
+        if (defensor->vida < 0) defensor->vida = 0; 
+        
+        printf("\n→ Dano aplicado: %d", dano);
+        printf("\n→ %s agora com [%d/100] de vida", defensor->classe, defensor->vida);
+    }
+
+    atacante->habilidade_ativa = false;     // Reseta habilidade ativa
 }
 
 int main() {
@@ -208,31 +255,48 @@ int main() {
     Personagem equipe1[TAMANHO_EQUIPE];
     Personagem equipe2[TAMANHO_EQUIPE];
 
+    int rodada = 1;
+
     inicializaEquipe(equipe1);
     inicializaEquipe(equipe2);
 
     int timeAtacante = sorteiaPrimeiro(); // Flag que alterna a cada jogada de um dos lados para exibir qual time está atacando.
 
     while (timeVivo(equipe1) && timeVivo(equipe2)) {    //enquanto as duas equipes estiverem vivas
-         Personagem *timeAtual = (timeAtacante == 1) ? equipe1 : equipe2;
-        Personagem *timeInimigo = (timeAtacante == 1) ? equipe2 : equipe1;
+        if (timeAtacante == 1) {
+            int idxAtacante = selecionaAtacante(equipe1);
+            int idxAlvo /* = selecionaAlvo(equipe2) */;
 
-        int idxAtacante = selecionaAtacante(timeAtual);
-        int idxAlvo = selecionaAlvo();
-        ataque(&timeAtual[idxAtacante], &timeInimigo[idxAlvo], idxAtacante, idxAlvo);
+            while (equipe2[idxAlvo].vida <= 0) {
+                idxAlvo = selecionaAlvo();
+            }
+
+            ataque(&equipe1[idxAtacante], &equipe2[idxAlvo], idxAtacante, 1);
+        } else {
+            int idxAtacante = selecionaAtacante(equipe2);
+            int idxAlvo /* = selecionaAlvo(equipe1) */;
+
+            while (equipe1[idxAlvo].vida <= 0) {
+                idxAlvo = selecionaAlvo();
+            }
+            
+            ataque(&equipe2[idxAtacante], &equipe1[idxAlvo], idxAtacante, 2);
+        }
+
+        mostrarStatusEquipes(equipe1, equipe2);
+
+        timeAtacante = (timeAtacante == 1) ? 2 : 1; // Alterna o time atacante para a próxima rodada
+        rodadaGlobal++;
+
+        printf("\nPressione [Enter] para continuar...");
+        getchar();
     }
 
-    /*
-    Grasi: falta fazer logica da habilidade do barbaro + logica da chance de falha da defesa 
-    Grasi: falta fazer logica da habilidade do barbaro + logica da chance de falha da defesa
-    */
-
-
-    //for(int i = 0;) {
-    //}
-    /* for(int i=0; i<TAMANHO_EQUIPE; i++) { // TESTANDO SE TODAS AS CLASSES FORAM CRIADAS
-        printf("\n%s\nHP:%d ATK:%d DEF:%d HAB_BOOL:%d\n", equipe1[i].classe, equipe1[i].vida, equipe1[i].ataque, equipe1[i].defesa, equipe1[i].habilidade_ativa);
+    if (timeVivo(equipe1)) { // Mostrar resultado final
+        printf("\n=== TIME 1 VENCEU A BATALHA! ===\n");
+    } else {
+        printf("\n=== TIME 2 VENCEU A BATALHA! ===\n");
     }
-    printf("\n"); */
+
     return 0;
 }
