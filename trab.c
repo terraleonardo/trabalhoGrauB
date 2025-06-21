@@ -169,10 +169,10 @@ void aplicarHabilidadeEspecialAtacante(Personagem *atacante, Personagem *defenso
     if (strcmp(defensor->classe, "Paladino") == 0 && defensor->vida > 0) {
         int chance = randomInt(0, 100);
         if (chance <= 30) { // 30% de chance de ativar a regeneração
-            int vida_regenerada = 20; // 20% de 100 (vida total)
+            int vida_regenerada = (100 - defensor->vida) * 0.2; // 20% de 100 (vida total)
             defensor->vida += vida_regenerada;
             if (defensor->vida > 100) defensor->vida = 100;
-            printf("\n→ Habilidade especial do Paladino ativada: regeneracao");
+            printf("\n→ Habilidade especial do Paladino ativada: regeneração");
             printf("\n→ Paladino regenerou %d de vida! Vida atual: %d",
                     vida_regenerada, defensor->vida);
         }
